@@ -1,87 +1,169 @@
-# 简答题
+简答题
 
-1. 最终执行结果是10，因为for循环是使用var定义的i,var定义的i是不受块作用域限制的，所以在for循环执行过程中是没有问题，等到consoloe.log()打印的时候，会在局部找i变量，然后向上查找i，因为var定义的i不受块级作用域限制，所以concoloe原本的i值都被，全局i覆盖了，所以全部打印出10
+1. ​		描述引用计数的工作原理和优缺点
 
-2. 执行结果就是报错，因为let定义的时候会形成暂时性死区，在这个块级作用域内，使用let声明之前，该变量是不可用的
+   1. 引用计数的工作原理是监听对象的引用计数，对象在被引用的时候计数会增加，对象在被取消引用的时候计数会减少，如果引用计数为零时就对为零的对象进行空间的回收。
+   2. 优点
+      1. 在对象为零的时候就即时进行对象回收，不需要等待
+      2. 减少程序卡顿的时间
+   3. 缺点
+      1. 无法回收循环引用的对象
+      2. 资源消耗大，因为要频繁的改变计数的值、
 
-3. Math.min(...arr)
+2. 描述标记整理算法的工作流程
 
-4. 
+   1. 标记整理算法的工作流程，主要分为两部分
+      1. 第一部分循环遍历对象，找到活动对象，并做上对应的标记
+      2. 第二部分循环遍历对象，清除没有标记的对象，在清理完没有标记的对象后，会把第一阶段做的标记都抹掉，以便于下次重新标记
+      3. 回收的空间，会放入空闲列表中，以便于下次程序直接在空闲列表中申请空间进行使用。
 
-   1. var
-      1. var 会有变量提升，可以在变量定义之前引用变量，只不过值是undefined
-      2. 不被块级作用域限制，可以上升为全局变量
-   2. let
-      1. let 使用时会有暂时性死区，在块级作用域内使用let定义变量之前，不能引用该变量
-      2. 去除了变量提升的特性，规定调用前一定要先定义
-      3. 定义的变量只在，块级作用域内有效
-   3. const
-      1. 是一个常量，比let多了一个只读特性
-      2. 声明后不可修改，这个不允许修改，只针对于存储地址的修改
+3. 描述V8中心神带存储区垃圾回收的流程
 
-5. 结果是20， 因为settimeout是箭头函数，所以this的指向就是调用fn函数的对象，执行的时候是obj调用的fn函数，所以打印obj里面a的数值20
+   1. 新生代存储区分为From和To两个等大的空间，From为使用空间，To为空闲空间，活动对象一般都存储于From空间内，经过一个时间周期会对From中的活动对象进行标记整理后将活动对象拷贝到To中，然后释放From中的空间，释放完成后，将From和To的空间进行交换，将活动对象重新放入From中
 
-6. Sym的主要用途一般用于一些常量和变量的定义或者拿来当作KEY值，用Symbol定义的变量和常量能够保证他们是唯一的，不会重复
+4. 描述增量标记算法再何时使用及工作原理
 
-7. 浅拷贝
+   1. 增量式标记算法，适合那些相对更重视缩短最大暂停时间而不是最大吞吐量的应用程序
+   2. 工作原理: 
+      1. 增量标记算法的思想就是相当于把标记的对象分为多个小块，穿插在程序的执行过程中运行，因为小块内容不会太多所以程序暂停时间都是很小的，在这种模式下增量算法会给对象添加对应的颜色，分别是白色，灰色和黑色，在最开始的时候所有对象都是白色，在检查后对象会被变成黑色，已经在检查列表中但是还未被检查到的会被标记成灰色，当所有灰色都变成黑色的时候，代表此次标记结束了，此时仍然是白色的对象会被回收，回收结束这一轮标记就结束了
 
-   1. 浅拷贝的机制在对象中没有类似于对象和数组的时候，其实就是将里面的数据进行拷贝，然而如果里面又对象和数组之类的数据时，只会拷贝对象和数组的指针到新的对象内，新对象更改，旧对象也会受到影响
+5. 练习1
 
-   深拷贝
+   1. 使用函数组合fp.flowRight()重新实现下面的这个函数
 
-   ​	深拷贝就是通过递归将拷贝对象里面的对象和数字这些数据，用递归的方式一层一层拷贝出来，完全分离开，保证新旧数据不受任何影响
+   2. ```javascript
+      class funtor {
+        static of(val) {
+          return new funtor(val);
+        }
+        constructor(value) {
+          this._value = value;
+        }
+        map(fn) {
+          return funtor.of(fn(this._value));
+        }
+      }
+      
+      const L = funtor.of(cars);
+      
+      console.log(
+        L.map(function (val) {
+          return fp.flowRight([fp.prop("in_stock"), fp.last])(val);
+        })
+      );
+      ```
 
-8. JS异步编程是为了节省一些耗时任务的等待时间，先去做其他事通过回调来处理，就不会造成等待耗时任务造成的页面卡顿了，Event Loop相当于就是消息队列，队列中会分为微服务队列和宏服务队列用于管理他们之间的执行规则，宏服务代表的是主要代码任务内容，微服务相当于是主要代码分支出来的细节
+6. 练习2 
 
-9. ```javascript
-   const L = new Promise((resolve, reject) => {
-     setTimeout(function () {
-       var a = "hello";
-       resolve(a);
-     }, 2);
-   }).then((res) => {
-     return new Promise((resolve, reject) => {
-       setTimeout(function () {
-         var b = "lagou";
-         resolve(`${res} ${b}`);
-       }, 2);
-     }).then((res) => {
-       return new Promise((resolve, reject) => {
-         setTimeout(function () {
-           var c = "I love u";
-           resolve(`${res} ${c}`);
-         }, 2);
-       });
-     });
-   });
-   
-   L.then((res) => {
-     console.log(res);
-   });
-   ```
+   1. 使用 fp.flowRight(), fp.prop()和fp.first()获取第一个car的name
 
-10. Javascript 是一种轻量级的解释性脚本语言，一般用于html页面的开发
+      ```javascript
+      class funtor {
+        static of(val) {
+          return new funtor(val);
+        }
+        constructor(value) {
+          this._value = value;
+        }
+        map(fn) {
+          return funtor.of(fn(this._value));
+        }
+      }
+      
+      const L = funtor.of(cars);
+      
+      console.log(
+        L.map(function (val) {
+          return fp.flowRight([fp.prop("name"), fp.first])(val);
+        })
+      );
+      ```
 
-    Typescript 是javascript的超集，包含了javascript的所有元素，可以载入javascript的代码运行，并扩展了javascript的语法
+7. 练习3
 
-    TypeScript 可以使用javaScript中额所有代码和编码概念，TypeScript是为了是javaScript的开发变得更加容易而创建的
+   1. 使用帮助函数_average重构averageDollarValue,使用函数组合的方式实现
 
-    TypeScript的优势
+      ```javascript
+      let _average = function (xs) {
+        return fp.reduce(fp.add, 0, xs) / xs.length;
+      };
+      let averageDollarValue = (cars) => {
+        return fp.flowRight(
+          _average,
+          fp.map((car) => car.dollar_value)
+        )(cars);
+      };
+      console.log(averageDollarValue(cars));
+      ```
 
-    更好的协作，更强的生产力，更快捷的项目重构，代码质量更好，更清晰
+8. 练习4
 
-11. 
+   1. 使用flowRight写一个sanitizeNames()函数
 
-    1. TypeScript的优点
-       1. 有更好的代码错误检查，更健全的代码规范
-       2. 编写的代码更加健壮，使得代码质量更好更清晰
-       3. 使用typescript工具来重构变得更加容易和快捷
-       4. 干净的 ECMAScript 6 代码，自动完成和动态输入等因素有助于提高开发人员的工作效率
-    2. TypeScript的缺点
-       1. 学习成本提高，需要理解接口，泛型，类，枚举等新的概念
-       2. 短期可能会怎加一些开发成本，笔记要多写一些类型的定义
-       3. 集成到构建流程需要些工作量
-       4. 可能和一些库结合的不是很完美
+      ```javascript
+      
+      let _underscore = fp.replace(/\W+/g, "_");
+      function sanitizeNames(array) {
+        return fp.flowRight(
+          fp.castArray,
+          _underscore,
+          fp.lowerCase,
+          fp.split(" ")
+        )(array);
+      }
+      
+      console.log(sanitizeNames(["Hello World"]));
+      ```
 
+9. 代码题2
 
+   1. 练习1
+
+      1. 使用fp.add(x,y)和fp.map(f,x)创建一个能让functor里的值增加的函数exl
+
+         ```javascript
+         let maybe = Maybe.of([5, 6, 1]);
+         let exl = maybe
+                   .map((x) => {
+                     return fp.map(fp.add(1), x);
+                   });
+         console.log(exl);
+         ```
+
+   2. 练习2
+
+      1. 实现一个函数ex2, 能够使用fp.first获取列表的第一个元素
+
+         ```javascript
+         let xs = Container.of(["do", "ray", "me", "fa", "so", "la", "ti", "do"]);
+         let ex2 = xs.map((x) => {
+           return fp.first(x);
+         });
+         console.log(ex2);
+         ```
+
+   3. 练习3
+
+      1. 实现ex3,使用safeProp和fp.first找到user的名字的首字母
+
+         ```javascript
+         let safeProp = fp.curry(function (x, o) {
+           return Maybe.of(o[x]);
+         });
+         let user = { id: 2, name: "Albert" };
+         let ex3 = safeProp("name", user).map((x) => fp.first(x));
+         console.log(ex3);
+         ```
+
+   4. 练习4
+
+      1. 使用Maybe重写ex4,不要有if语句
+
+         ```
+         const n = "5";
+         let maybe = Maybe.of(n).map((x) => parseInt(n));
+         console.log(maybe);
+         ```
+
+         
 
